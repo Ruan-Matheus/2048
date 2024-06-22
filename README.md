@@ -2,7 +2,7 @@
 
 TODO 
 
-- [ ]  Adicionar a lógica de soma para linhas e colunas:
+- [x]  Adicionar a lógica de soma para linhas e colunas:
     - Deslizar e combinar para a esquerda
     - Deslizar e combinar para cima
     - Deslizar e combinar para baixo

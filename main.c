@@ -2,86 +2,80 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "queue.c"
+#include "fila_dinamica.c"
 
-#define true 1
-#define false 0
-#define BOARD_SIZE 4
-
-typedef int bool;
+#define TAMANHO_TABULEIRO 4
 
 
-bool isSpaceAvailable(int board[BOARD_SIZE][BOARD_SIZE]) {
-    int space = false;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            if (board[i][j] == 0) {
-                puts("there is space available");
+bool HaEspacoDisponivel(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            if (tabuleiro[i][j] == 0) {
+                puts("Ha espaco disponivel");
                 return true;
             }
         }
     }
-    puts("there is no space available");
+    puts("Nao ha espaco disponivel");
     return false;
 }
 
 
-void putNewTile(int board[BOARD_SIZE][BOARD_SIZE]) {
-    int randomNumberLine;
-    int randomNumberColum;
+void adicionarNovoNumero(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    int randomNumeroLinha;
+    int randomNumeroColuna;
     
     do {
-        randomNumberLine = (rand() % 4);
-        randomNumberColum = (rand() % 4);
-    } while (board[randomNumberLine][randomNumberColum] != 0);
+        randomNumeroLinha = (rand() % 4);
+        randomNumeroColuna = (rand() % 4);
+    } while (tabuleiro[randomNumeroLinha][randomNumeroColuna] != 0);
 
-    board[randomNumberLine][randomNumberColum] = pow(2,((rand() % 2) + 1));
+    tabuleiro[randomNumeroLinha][randomNumeroColuna] = pow(2,((rand() % 2) + 1)); // 2**1 ou 2**2
 }
 
 
-void createBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
-    int randomNumber = (rand() % 2) + 1; // A number between 1 and 2. The quantitiy of non 0 at the start.
-    
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            board[i][j] = 0;
+void criarTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    int randomNumero = (rand() % 2) + 1;  // Um numero entre 1 e 2. A quantidade de não 0s no começo do jogo.
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            tabuleiro[i][j] = 0;
         }
     }
-    putNewTile(board);
-    if (randomNumber == 2) {
-        putNewTile(board);
+    adicionarNovoNumero(tabuleiro);
+    if (randomNumero == 2) {
+        adicionarNovoNumero(tabuleiro);
     }
 }
 
 
-void LineSumRight(int vet[BOARD_SIZE], int* score) {
-    QUEUE q;
-    REGISTER reg;
-    startQueue(&q);
+void somandoVetorDireita(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
+    FILA q;
+    REGISTRO reg;
+    iniciarFILA(&q);
 
-    // Enqueue non-zero elements
-    for (int i = BOARD_SIZE - 1; i >= 0; i--) {
+    // Insere os elementos que não sejam 0
+    for (int i = TAMANHO_TABULEIRO - 1; i >= 0; i--) {
         if (vet[i] != 0) {
-            reg.key = vet[i];
-            enQueue(&q, reg);
+            reg.chave = vet[i];
+            inserirElementoFila(&q, reg);
         }
     }
 
-    // Dequeue elements, combine if equal, and store back in the vector
-    int index = BOARD_SIZE - 1;
+    // Remove os elementos, combina se iguais, e devolve ao vetor
+    int index = TAMANHO_TABULEIRO - 1;
     int current, next;
-    while (sizeOfQueue(q) > 0) {
-        deQueue(&q, &reg);
-        current = reg.key;
-        if (sizeOfQueue(q) <= 0) {
+    while (tamanhoDaFILA(q) > 0) {
+        excluirElementoFila(&q, &reg);
+        current = reg.chave;
+        if (tamanhoDaFILA(q) <= 0) {
              vet[index--] = current;
              break;
         }
         front(q, &next);
         if (current == next) {
             vet[index--] = current + next;
-            *score += current + next;
-            deQueue(&q, &reg);
+            *pontuacao += current + next;
+            excluirElementoFila(&q, &reg);
         } 
         else {
             vet[index--] = current;
@@ -92,73 +86,112 @@ void LineSumRight(int vet[BOARD_SIZE], int* score) {
         vet[index--] = 0;
     }
 
-    restartQueue(&q);
+    reiniciarFila(&q);
 }
 
 
-void slideBoardRight(int board[BOARD_SIZE][BOARD_SIZE], int* score) {
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        LineSumRight(board[i], score);
+void somandoMatrizParaDireita(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        somandoVetorDireita(tabuleiro[i], pontuacao);
     }
-    putNewTile(board);
+    adicionarNovoNumero(tabuleiro);
 }
 
 
-void LineSumLeft(int vet[BOARD_SIZE], int* score) {
-    QUEUE q;
-    REGISTER reg;
-    startQueue(&q);
+void somandoVetorEsquerda(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
+    FILA q;
+    REGISTRO reg;
+    iniciarFILA(&q);
 
-    // Enqueue non-zero elements
-    for (int i = 0; i < BOARD_SIZE; i++) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
         if (vet[i] != 0) {
-            reg.key = vet[i];
-            enQueue(&q, reg);
+            reg.chave = vet[i];
+            inserirElementoFila(&q, reg);
         }
     }
 
-    // Dequeue elements, combine if equal, and store back in the vector
+    // excluirElementoFila elements, combine if equal, and store back in the vector
     int index = 0;
     int current, next;
-    while (sizeOfQueue(q) > 0) {
-        deQueue(&q, &reg);
-        current = reg.key;
-        if (sizeOfQueue(q) <= 0) {
+    while (tamanhoDaFILA(q) > 0) {
+        excluirElementoFila(&q, &reg);
+        current = reg.chave;
+        if (tamanhoDaFILA(q) <= 0) {
              vet[index++] = current;
              break;
         }
         front(q, &next);
         if (current == next) {
             vet[index++] = current + next;
-            *score += current + next;
-            deQueue(&q, &reg);
+            *pontuacao += current + next;
+            excluirElementoFila(&q, &reg);
         } 
         else {
             vet[index++] = current;
         }
     }
     // Fill the remaining positions with zeros
-    while (index < BOARD_SIZE) {
+    while (index < TAMANHO_TABULEIRO) {
         vet[index++] = 0;
     }
 
-    restartQueue(&q);
+    reiniciarFila(&q);
 }
 
 
-void slideBoardLeft(int board[BOARD_SIZE][BOARD_SIZE], int* score) {
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        LineSumLeft(board[i], score);
+void somandoMatrizEsquerda(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        somandoVetorEsquerda(tabuleiro[i], pontuacao);
     }
-    putNewTile(board);
+    adicionarNovoNumero(tabuleiro);
 }
 
 
-void printBoard(int board[BOARD_SIZE][BOARD_SIZE], int score) {
-    printf("Score: %d\n", score);
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
-            printf(" %d ", board[i][j]);
+void somandoVetorBaixo(int tabuleiro[TAMANHO_TABULEIRO], int* pontuacao) {
+    somandoVetorDireita(tabuleiro, pontuacao);
+}
+
+
+void somandoMatrizBaixo(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        int vet[TAMANHO_TABULEIRO];
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            vet[j] = tabuleiro[j][i];
+        }
+        somandoVetorBaixo(vet, pontuacao);
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            tabuleiro[j][i] = vet[j];
+        }
+    }
+    adicionarNovoNumero(tabuleiro);
+}
+
+
+
+void somandoVetorCima(int tabuleiro[TAMANHO_TABULEIRO], int* pontuacao) {
+    somandoVetorEsquerda(tabuleiro, pontuacao);
+}
+
+
+void somandoMatrizCima(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        int vet[TAMANHO_TABULEIRO];
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            vet[j] = tabuleiro[j][i];
+        }
+        somandoVetorCima(vet, pontuacao);
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            tabuleiro[j][i] = vet[j];
+        }
+    }
+    adicionarNovoNumero(tabuleiro);
+}
+
+void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int pontuacao) {
+    printf("Pontos: %d\n\n", pontuacao);
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            printf(" %4d ", tabuleiro[i][j]);
         }
         printf("\n");
     }
@@ -168,42 +201,42 @@ void printBoard(int board[BOARD_SIZE][BOARD_SIZE], int score) {
 
 int main() {
     srand(time(NULL));
-    int board[BOARD_SIZE][BOARD_SIZE];
-    int score = 0;
+    int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
+    int pontuacao = 0;
     bool gameNotOver = true;
-    char move;
+    char movimento;
 
-    createBoard(board);
-    printBoard(board, score);
+    criarTabuleiro(tabuleiro);
+    exibirTabuleiro(tabuleiro, pontuacao);
 
     while (gameNotOver) {    
 
-        printf("Your movement: ");
-        scanf("%c", &move);
+        printf("Seu movimento: ");
+        scanf("%c", &movimento);
 
-        switch (move) {
+        switch (movimento) {
             case 'w':
-                //sumUp(board);
+                somandoMatrizCima(tabuleiro, &pontuacao);
                 getchar();
                 break;
             case 'a':
-                slideBoardLeft(board, &score);
+                somandoMatrizEsquerda(tabuleiro, &pontuacao);
                 getchar();
                 break;
             case 'd':
-                slideBoardRight(board, &score);
+                somandoMatrizParaDireita(tabuleiro, &pontuacao);
                 getchar();
                 break;
             case 's':
-                //sumDown(board);
+                somandoMatrizBaixo(tabuleiro, &pontuacao);
                 getchar();
                 break;
         default:
-            puts("Not a valid move!");
+            puts("Movimento invalido!");
             break;
         }
-        printBoard(board, score);
-        gameNotOver = isSpaceAvailable(board);
+        exibirTabuleiro(tabuleiro, pontuacao);
+        gameNotOver = HaEspacoDisponivel(tabuleiro);
     }
     
     puts("Game over!");
