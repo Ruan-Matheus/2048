@@ -39,7 +39,6 @@ void putNewTile(int board[BOARD_SIZE][BOARD_SIZE]) {
 }
 
 
-
 void createBoard(int board[BOARD_SIZE][BOARD_SIZE]) {
     int randomNumber = (rand() % 2) + 1; // A number between 1 and 2. The quantitiy of non 0 at the start.
     
@@ -96,9 +95,60 @@ void LineSumRight(int vet[BOARD_SIZE], int* score) {
     restartQueue(&q);
 }
 
+
 void slideBoardRight(int board[BOARD_SIZE][BOARD_SIZE], int* score) {
     for (int i = 0; i < BOARD_SIZE; i++) {
         LineSumRight(board[i], score);
+    }
+    putNewTile(board);
+}
+
+
+void LineSumLeft(int vet[BOARD_SIZE], int* score) {
+    QUEUE q;
+    REGISTER reg;
+    startQueue(&q);
+
+    // Enqueue non-zero elements
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        if (vet[i] != 0) {
+            reg.key = vet[i];
+            enQueue(&q, reg);
+        }
+    }
+
+    // Dequeue elements, combine if equal, and store back in the vector
+    int index = 0;
+    int current, next;
+    while (sizeOfQueue(q) > 0) {
+        deQueue(&q, &reg);
+        current = reg.key;
+        if (sizeOfQueue(q) <= 0) {
+             vet[index++] = current;
+             break;
+        }
+        front(q, &next);
+        if (current == next) {
+            vet[index++] = current + next;
+            *score += current + next;
+            deQueue(&q, &reg);
+        } 
+        else {
+            vet[index++] = current;
+        }
+    }
+    // Fill the remaining positions with zeros
+    while (index < BOARD_SIZE) {
+        vet[index++] = 0;
+    }
+
+    restartQueue(&q);
+}
+
+
+void slideBoardLeft(int board[BOARD_SIZE][BOARD_SIZE], int* score) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        LineSumLeft(board[i], score);
     }
     putNewTile(board);
 }
@@ -137,7 +187,7 @@ int main() {
                 getchar();
                 break;
             case 'a':
-                //sumLeft(board);
+                slideBoardLeft(board, &score);
                 getchar();
                 break;
             case 'd':

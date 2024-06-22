@@ -58,6 +58,54 @@ void slideBoardRight(int board[SIZE][SIZE]) {
 }
 
 
+
+void LineSumLeft(int vet[SIZE]) {
+    QUEUE q;
+    REGISTER reg;
+    startQueue(&q);
+
+    // Enqueue non-zero elements
+    for (int i = 0; i < SIZE; i++) {
+        if (vet[i] != 0) {
+            reg.key = vet[i];
+            enQueue(&q, reg);
+        }
+    }
+
+    // Dequeue elements, combine if equal, and store back in the vector
+    int index = 0;
+    int current, next;
+    while (sizeOfQueue(q) > 0) {
+        deQueue(&q, &reg);
+        current = reg.key;
+        if (sizeOfQueue(q) <= 0) {
+             vet[index++] = current;
+             break;
+        }
+        front(q, &next);
+        if (current == next) {
+            vet[index++] = current + next;
+            deQueue(&q, &reg);
+        } 
+        else {
+            vet[index++] = current;
+        }
+    }
+    // Fill the remaining positions with zeros
+    while (index < SIZE) {
+        vet[index++] = 0;
+    }
+
+    restartQueue(&q);
+}
+
+void slideBoardLeft(int board[SIZE][SIZE]) {
+    for (int i = 0; i < SIZE; i++) {
+        LineSumLeft(board[i]);
+    }
+}
+
+
 void printBoard(int board[SIZE][SIZE]) {
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
@@ -69,6 +117,14 @@ void printBoard(int board[SIZE][SIZE]) {
 }
 
 
+
+
+
+
+
+
+
+
 int main() {
     int board[SIZE][SIZE] = {
         {2, 2, 4, 4},
@@ -77,7 +133,7 @@ int main() {
         {0, 0, 0, 2}};
     
     printBoard(board);
-    slideBoardRight(board);
+    slideBoardLeft(board);
     printBoard(board);
 
     return 0;
