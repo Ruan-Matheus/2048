@@ -1,7 +1,7 @@
 # 2048
 
 
-## Para compilar e executar o jogo, use o comando:
+## Para compilar e executar o jogo, use os comandos:
 ```
 gcc main.c fila_dinamica.c tabuleiro.c arquivo.c -o main.exe -lm
 main.exe (Windows)
