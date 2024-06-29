@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#include "fila_dinamica.c"
+#include "fila_dinamica.h"
+#include "arquivo.c"
 
 #define TAMANHO_TABULEIRO 4
-
 
 bool HaEspacoDisponivel(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
     for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
@@ -30,7 +30,7 @@ void adicionarNovoNumero(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
         randomNumeroColuna = (rand() % 4);
     } while (tabuleiro[randomNumeroLinha][randomNumeroColuna] != 0);
 
-    tabuleiro[randomNumeroLinha][randomNumeroColuna] = pow(2,((rand() % 2) + 1)); // 2**1 ou 2**2
+    tabuleiro[randomNumeroLinha][randomNumeroColuna] = (int)pow(2,((rand() % 2) + 1)); // 2**1 ou 2**2
 }
 
 
@@ -81,7 +81,7 @@ void somandoVetorDireita(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
             vet[index--] = current;
         }
     }
-    // Fill the remaining positions with zeros
+    // Preechendo o resto das posições com 0s
     while (index >= 0) {
         vet[index--] = 0;
     }
@@ -110,7 +110,7 @@ void somandoVetorEsquerda(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
         }
     }
 
-    // excluirElementoFila elements, combine if equal, and store back in the vector
+    
     int index = 0;
     int current, next;
     while (tamanhoDaFILA(q) > 0) {
@@ -130,7 +130,7 @@ void somandoVetorEsquerda(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
             vet[index++] = current;
         }
     }
-    // Fill the remaining positions with zeros
+    // Completando as posições restantes com 0s
     while (index < TAMANHO_TABULEIRO) {
         vet[index++] = 0;
     }
@@ -187,6 +187,7 @@ void somandoMatrizCima(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int*
     adicionarNovoNumero(tabuleiro);
 }
 
+
 void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int pontuacao) {
     printf("Pontos: %d\n\n", pontuacao);
     for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
@@ -200,46 +201,99 @@ void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int po
 
 
 int main() {
+    FILE* arquivo;
+    Perfil jogador;
     srand(time(NULL));
+    char menu, escolha;
+    char* arquivoNome = "perfis.dat";
     int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
     int pontuacao = 0;
+    double tempoTotal;
+    time_t tInicio, tFinal;
     bool gameNotOver = true;
-    char movimento;
 
-    criarTabuleiro(tabuleiro);
-    exibirTabuleiro(tabuleiro, pontuacao);
+    do {
+        printf("\n===== MENU =====\n");
+        printf("1. Jogar\n");
+        printf("2. Ver leaderboard\n");
+        printf("3. Sair\n");
+        printf("Escolha: ");
+        scanf(" %c", &menu);
+        getchar();  // Captures the newline character
 
-    while (gameNotOver) {    
+        switch (escolha) {
+            case '1':
+                // Jogar o jogo
+                puts("Digite seu nome de perfil: ");
+                fgets(jogador.nome, TAMANHO_NOME, stdin);
+                jogador.nome[strcspn(jogador.nome, "\n")] = 0; // Remove newline character
 
-        printf("Seu movimento: ");
-        scanf("%c", &movimento);
+                criarTabuleiro(tabuleiro);
+                exibirTabuleiro(tabuleiro, pontuacao);
 
-        switch (movimento) {
-            case 'w':
-                somandoMatrizCima(tabuleiro, &pontuacao);
-                getchar();
+                tInicio = time(NULL);
+                while (gameNotOver) {    
+                    printf("Seu movimento: ");
+                    scanf(" %c", &escolha);
+                    getchar();
+
+                    switch (escolha) {
+                        case 'w':
+                            somandoMatrizCima(tabuleiro, &pontuacao);
+                            break;
+                        case 'a':
+                            somandoMatrizEsquerda(tabuleiro, &pontuacao);
+                            break;
+                        case 'd':
+                            somandoMatrizParaDireita(tabuleiro, &pontuacao);
+                            break;
+                        case 's':
+                            somandoMatrizBaixo(tabuleiro, &pontuacao);
+                            break;
+                        case 'q':
+                            puts("Fechando o jogo...");
+                            gameNotOver = false;
+                            break;
+                        default:
+                            puts("Movimento invalido!");
+                            break;
+                    }
+                    exibirTabuleiro(tabuleiro, pontuacao);
+
+                    if (!HaEspacoDisponivel(tabuleiro)) {
+                        gameNotOver = false;
+                    }
+                } 
+                tFinal = time(NULL);
+                tempoTotal = ((double)(tFinal - tInicio));
+                
+                // Atualiza a pontuacao
+                jogador.pontuacaoMaxima = pontuacao;
+                jogador.pontuacaoMaximaSegundo = pontuacao / tempoTotal;
+
+                printf("nome: %s\npontos: %d, pontos/s: %.0f\n\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
+
+                atualizaArquivo(arquivo, arquivoNome, jogador);
+
+                puts("Game over!");
+                printf("Tempo de jogo: %.0fs\n", tempoTotal);
                 break;
-            case 'a':
-                somandoMatrizEsquerda(tabuleiro, &pontuacao);
-                getchar();
+
+            case '2':
+                // Ver leaderboard
+                // exibirLeaderboard(arquivoNome);
                 break;
-            case 'd':
-                somandoMatrizParaDireita(tabuleiro, &pontuacao);
-                getchar();
+
+            case '3':
+                // Sair do programa
+                puts("Saindo...");
                 break;
-            case 's':
-                somandoMatrizBaixo(tabuleiro, &pontuacao);
-                getchar();
+
+            default:
+                puts("Escolha invalida! Tente novamente.");
                 break;
-        default:
-            puts("Movimento invalido!");
-            break;
         }
-        exibirTabuleiro(tabuleiro, pontuacao);
-        gameNotOver = HaEspacoDisponivel(tabuleiro);
-    }
-    
-    puts("Game over!");
+    } while (escolha != '3');
 
     return 0;
 }
