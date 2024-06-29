@@ -61,7 +61,7 @@ void exibirPerfis(char* arquivoNome) {
     }
 
     Perfil jogador;
-    puts("\n=========================== RANKING ===========================\n");
+    puts("\n=========================== PERFIS ===========================\n");
     printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
     while (fread(&jogador, sizeof(Perfil), 1, arquivo) == 1) {
         printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);

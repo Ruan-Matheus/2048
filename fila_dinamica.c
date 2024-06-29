@@ -1,27 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define true 1
-#define false 0
-
-typedef int TIPODATA;
-typedef int bool;
-
-typedef struct {
-    TIPODATA chave;
-    // Others fields
-} REGISTRO;
-
-
-typedef struct aux {
-    REGISTRO reg;
-    struct aux* next;
-} ELEMENTO;
-
-
-typedef struct {
-    ELEMENTO* front;
-    ELEMENTO* rear;
-} FILA;
+#include "fila_dinamica.h"
 
 
 void iniciarFILA(FILA* q) {
@@ -98,20 +77,7 @@ void reiniciarFila(FILA* q) {
 }
 
 
-FILA arrayToFILA(int* array, int size) {
-    FILA q;
-    REGISTRO reg;
-    iniciarFILA(&q);
-    
-    for (int i = 0; i < size; i++) {
-        reg.chave = array[i];
-        inserirElementoFila(&q, reg);
-    }
-    return q;
-}
-
-
-void front(FILA q, int *var) {
+void primeiro(FILA q, int *var) {
     if (q.front == NULL) {
         *var = 0;
         return;
