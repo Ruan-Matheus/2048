@@ -19,15 +19,12 @@ void atualizaArquivo(char* arquivoNome, Perfil jogador) {
     Perfil atual;
     bool jogadorEncontrado = false;
 
-    arquivo = fopen(arquivoNome, "r+");
+    arquivo = fopen(arquivoNome, "rb+");
     if (!arquivo) {
         puts("Erro ao atualizar o arquivo de save!");
         return;
     }
-     puts("Arquivo aberto para atualização.");
-
     while (fread(&atual, sizeof(Perfil), 1, arquivo) == 1) {
-        printf("Lendo perfil: %s\n", atual.nome);
         // O perfil existe, e foi encontrado
         if (strcmp(atual.nome, jogador.nome) == 0) { 
             if (jogador.pontuacaoMaxima > atual.pontuacaoMaxima) {
@@ -45,11 +42,8 @@ void atualizaArquivo(char* arquivoNome, Perfil jogador) {
     if (!jogadorEncontrado) {
         fseek(arquivo, 0, SEEK_END);
         fwrite(&jogador, sizeof(Perfil), 1, arquivo);
-        printf("Novo perfil adicionado: %s\n", jogador.nome);
-
     }
     fclose(arquivo);
-    puts("Arquivo atualizado e fechado.");
     return;
 }
 
@@ -57,24 +51,22 @@ void atualizaArquivo(char* arquivoNome, Perfil jogador) {
 void exibeArquivo(char* arquivoNome) {
     FILE* arquivo;
     Perfil temp;
-    arquivo = fopen(arquivoNome, "r");
+    arquivo = fopen(arquivoNome, "rb");
     
     if (!arquivo) {
         puts("Falha ao abrir o arquivo de save!");
         return;
     }
     while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
-        printf("Lendo perfil: %s\n", temp.nome);
         printf("Nome: %s\nPontuacao Maxima: %d \nPontos por Segundo: %.0f\n\n", temp.nome, temp.pontuacaoMaxima, temp.pontuacaoMaximaSegundo);
     }
     fclose(arquivo);
-    puts("Arquivo de perfis fechado.");
     return;
 }
 
 
 void exibirPerfis(char* arquivoNome) {
-    FILE* arquivo = fopen(arquivoNome, "r");
+    FILE* arquivo = fopen(arquivoNome, "rb");
     if (!arquivo) {
         printf("Erro ao abrir o arquivo %s\n", arquivoNome);
         return;
