@@ -75,12 +75,12 @@ void jogarJogo(char* arquivoNome) {
     jogador.pontuacaoMaxima = pontuacao;
     jogador.pontuacaoMaximaSegundo = pontuacao / tempoTotal;
 
-    printf("nome: %s\npontos: %d, pontos/s: %.0f\n\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
-
     atualizaArquivo(arquivoNome, jogador);
 
     puts("Game over!");
     printf("Tempo de jogo: %.0fs\n", tempoTotal);
+    
+    printf("nome: %s\npontos: %d, pontos/s: %.0f\n\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
 }
 
 
@@ -95,6 +95,7 @@ int main() {
     char escolha;
 
     //Verificar se o arquivo existe, antes de ler.
+    arquivo = fopen(arquivoNome, "ab+");
 
     do {
         printf("\n===== MENU =====\n");
