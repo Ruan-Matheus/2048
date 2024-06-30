@@ -3,7 +3,10 @@
 #include <string.h>
 
 #define TAMANHO_NOME 4 // 3 Caracter de nome + \0
+#define true 1
+#define false 0
 
+typedef int bool;
 typedef struct {
     char nome[TAMANHO_NOME];
     int pontuacaoMaxima;
@@ -14,24 +17,39 @@ typedef struct {
 void atualizaArquivo(char* arquivoNome, Perfil jogador) {
     FILE* arquivo;
     Perfil atual;
+    bool jogadorEncontrado = false;
 
     arquivo = fopen(arquivoNome, "r+");
     if (!arquivo) {
         puts("Erro ao atualizar o arquivo de save!");
         return;
     }
+     puts("Arquivo aberto para atualização.");
+
     while (fread(&atual, sizeof(Perfil), 1, arquivo) == 1) {
-        if (strcmp(atual.nome, jogador.nome) == 0) { // O perfil existe, e foi encontrado
+        printf("Lendo perfil: %s\n", atual.nome);
+        // O perfil existe, e foi encontrado
+        if (strcmp(atual.nome, jogador.nome) == 0) { 
             if (jogador.pontuacaoMaxima > atual.pontuacaoMaxima) {
                 fseek(arquivo, -sizeof(Perfil), SEEK_CUR);
                 fwrite(&jogador, sizeof(Perfil), 1, arquivo);
-                fclose(arquivo);
+                fseek(arquivo, 0, SEEK_CUR);
+                printf("Perfil atualizado: %s\n", jogador.nome);
             }
-        return; // Se o jogador foi encontrado, e sua pontuacao foi menor, a pontuacao nao e salva
+            jogadorEncontrado = true;
+            break;
+        // Se o jogador foi encontrado, e sua pontuacao foi menor, a pontuacao nao e salva
         }
     }
-    fwrite(&jogador, sizeof(Perfil), 1, arquivo);
+    // Perfil não existe, adicionando ao final do arquivo
+    if (!jogadorEncontrado) {
+        fseek(arquivo, 0, SEEK_END);
+        fwrite(&jogador, sizeof(Perfil), 1, arquivo);
+        printf("Novo perfil adicionado: %s\n", jogador.nome);
+
+    }
     fclose(arquivo);
+    puts("Arquivo atualizado e fechado.");
     return;
 }
 
@@ -46,9 +64,11 @@ void exibeArquivo(char* arquivoNome) {
         return;
     }
     while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
+        printf("Lendo perfil: %s\n", temp.nome);
         printf("Nome: %s\nPontuacao Maxima: %d \nPontos por Segundo: %.0f\n\n", temp.nome, temp.pontuacaoMaxima, temp.pontuacaoMaximaSegundo);
     }
     fclose(arquivo);
+    puts("Arquivo de perfis fechado.");
     return;
 }
 
