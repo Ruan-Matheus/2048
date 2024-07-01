@@ -7,16 +7,10 @@
 #include "arquivo.h"
 #include "tabuleiro.h"
 
-void toUpper(char* string) {
-    for (int i = 0; string[i] != '\0'; i++) {
-        if (string[i] >= 'a' && string[i] <= 'z') {
-            string[i] -= 32;
-        }
-    }
-} 
+#define NOME_ARQUIVO "perfis.dat"
+char perfilAtivo[TAMANHO_NOME] = "";
 
-
-void jogarJogo(char* arquivoNome) {
+void jogarJogo() {
     FILE* arquivo;
     Perfil jogador;
     int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
@@ -26,10 +20,11 @@ void jogarJogo(char* arquivoNome) {
     bool gameNotOver = true;
     srand(time(NULL));
 
-    puts("Digite seu nome de perfil: ");
-    fgets(jogador.nome, TAMANHO_NOME, stdin);
-    toUpper(jogador.nome);
-    jogador.nome[strcspn(jogador.nome, "\n")] = 0; // Remove o caracter de nova linha
+    if (perfilAtivo[0] == '\0') {
+        printf("Nenhum perfil ativo. Por favor, selecione um perfil primeiro.\n");
+        return;
+    }
+    strcpy(jogador.nome, perfilAtivo);
 
     criarTabuleiro(tabuleiro);
     exibirTabuleiro(tabuleiro, pontuacao);
@@ -75,7 +70,7 @@ void jogarJogo(char* arquivoNome) {
     jogador.pontuacaoMaxima = pontuacao;
     jogador.pontuacaoMaximaSegundo = pontuacao / tempoTotal;
 
-    atualizaArquivo(arquivoNome, jogador);
+    atualizaArquivo(jogador);
 
     puts("Game over!");
     printf("Tempo de jogo: %.0fs\n", tempoTotal);
@@ -91,31 +86,29 @@ void sair() {
 
 int main() {
     FILE* arquivo;
-    char* arquivoNome = "perfis.dat";
     char escolha;
 
-    //Verificar se o arquivo existe, antes de ler.
-    arquivo = fopen(arquivoNome, "ab+");
+    //Verifica se o arquivo existe, antes de ler.
+    arquivo = fopen(NOME_ARQUIVO, "ab+");
 
     do {
         printf("\n===== MENU =====\n");
         printf("1. Jogar\n");
         printf("2. Ver Perfis\n");
         printf("3. Sair\n");
-        printf("Escolha: ");
+        printf("\nEscolha: ");
         scanf(" %c", &escolha);
         getchar();
 
         switch (escolha) {
             case '1':
-                jogarJogo(arquivoNome);
+                jogarJogo();
                 break;
             case '2':
-                exibirPerfis(arquivoNome);
+                menuPerfis();
                 break;
             case '3':
                 sair();
-                escolha = '3';
                 break;
             default:
                 puts("Escolha invalida! Tente novamente.");
