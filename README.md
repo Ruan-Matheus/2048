@@ -4,7 +4,11 @@
 ## Para compilar e executar o jogo, use os comandos:
 ```
 gcc main.c fila_dinamica.c tabuleiro.c arquivo.c -o main.exe -lm
+```
+```
 main.exe (Windows)
+```
+```
 ./main.exe (Linux)
 ```
 
