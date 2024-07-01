@@ -28,29 +28,3 @@ void bolha(Perfil v[], int tam, bool tempo){
         }
     }
 }
-
-
-void exibirRanking(int max, bool segundo) {
-    FILE* arquivo;
-    Perfil SAVE[256];
-    
-    arquivo = fopen(NOME_ARQUIVO, "rb");
-    if (!arquivo) {
-        printf("Erro ao abrir o arquivo %s", NOME_ARQUIVO);
-        return;
-    }
-
-    int i = 0;
-    while (fread(&SAVE[i++], sizeof(Perfil), 1, arquivo)) {}
-    fclose(arquivo);
-
-    bolha(SAVE, i, segundo);
-
-    puts("\n=========================== RANKING ===========================\n");
-    printf("%-5s %-12s %-20s %s\n", "RANK", "NOME", "PONTUACAO MAXIMA", "PONTUACAO POR SEGUNDO");
-    puts("--------------------------------------------------------------");
-    for (int j = 0; j < max && j < i; j++) {
-        printf("%-5d %-12s %-20d %.2f\n", j + 1, SAVE[j].nome, SAVE[j].pontuacaoMaxima, SAVE[j].pontuacaoMaximaSegundo);
-    }
-    puts("==============================================================\n");
-}
