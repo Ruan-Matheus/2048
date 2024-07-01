@@ -33,8 +33,9 @@ main.exe (Windows)
   -  Melhorar a impressão do tabuleiro e fornecer feedback claro ao usuário sobre o estado do jogo (por exemplo, vitória, derrota, jogadas inválidas).
   
   
-- [ ] Arquivos:
-    - Criar, apagar e acessar um perfil (sem senha), composto por um nome de no máximo 3 letras, todas maiúsculas.  
+- [x] Arquivos:
+     - Criar, apagar e acessar um perfil (sem senha), composto por um nome de no máximo 3 letras, todas maiúsculas.  
+     
      - Exibir todos os perfis.
      
      - Visualizar os primeiros 10 perfis, ordenados por ambos os tipos de pontuação.
