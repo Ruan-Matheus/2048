@@ -1,27 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "arquivo.h"
 
-#define TAMANHO_NOME 4 // 3 Caracter de nome + \0
-#define true 1
-#define false 0
+char perfilAtivo[TAMANHO_NOME]; // Variavel gloval para armazenar o nome do perfil ativo
 
-typedef int bool;
-typedef struct {
-    char nome[TAMANHO_NOME];
-    int pontuacaoMaxima;
-    float pontuacaoMaximaSegundo;
-} Perfil;
+void toUpper(char* string) {
+    for (int i = 0; string[i] != '\0'; i++) {
+        if (string[i] >= 'a' && string[i] <= 'z') {
+            string[i] -= 32;
+        }
+    }
+} 
 
 
-void atualizaArquivo(char* arquivoNome, Perfil jogador) {
+void atualizaArquivo(Perfil jogador) {
     FILE* arquivo;
     Perfil atual;
     bool jogadorEncontrado = false;
 
-    arquivo = fopen(arquivoNome, "rb+");
+    arquivo = fopen(NOME_ARQUIVO, "rb+");
     if (!arquivo) {
-        puts("Erro ao atualizar o arquivo de save!");
+        puts("Erro ao abir o arquivo de save!");
         return;
     }
     while (fread(&atual, sizeof(Perfil), 1, arquivo) == 1) {
@@ -31,7 +31,6 @@ void atualizaArquivo(char* arquivoNome, Perfil jogador) {
                 fseek(arquivo, -sizeof(Perfil), SEEK_CUR);
                 fwrite(&jogador, sizeof(Perfil), 1, arquivo);
                 fseek(arquivo, 0, SEEK_CUR);
-                printf("Perfil atualizado: %s\n", jogador.nome);
             }
             jogadorEncontrado = true;
             break;
@@ -48,36 +47,202 @@ void atualizaArquivo(char* arquivoNome, Perfil jogador) {
 }
 
 
-void exibeArquivo(char* arquivoNome) {
-    FILE* arquivo;
-    Perfil temp;
-    arquivo = fopen(arquivoNome, "rb");
-    
+void exibirPerfis() {
+    Perfil jogador;
+
+    FILE* arquivo = fopen(NOME_ARQUIVO, "rb");
     if (!arquivo) {
-        puts("Falha ao abrir o arquivo de save!");
+        printf("Erro ao abrir o arquivo %s\n", NOME_ARQUIVO);
         return;
     }
-    while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
-        printf("Nome: %s\nPontuacao Maxima: %d \nPontos por Segundo: %.0f\n\n", temp.nome, temp.pontuacaoMaxima, temp.pontuacaoMaximaSegundo);
+
+    puts("\n=========================== PERFIS ===========================\n");
+    printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
+    while (fread(&jogador, sizeof(Perfil), 1, arquivo) == 1) {
+        printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
+    }
+    fclose(arquivo);
+    return;
+}
+
+void lerNome(char* string, char nomePerfil[]) {
+    getchar();
+    printf("\n%s", string);
+    fgets(nomePerfil, TAMANHO_NOME, stdin);
+    toUpper(nomePerfil);
+}
+
+
+void criarPerfil() {
+    FILE* arquivo;
+    Perfil novo, temp;
+    bool perfilJaExistente = false;
+
+    lerNome("Digite o nome do Perfil a ser criado: ", novo.nome);
+    novo.pontuacaoMaxima = 0;
+    novo.pontuacaoMaximaSegundo = 0;
+  
+    arquivo = fopen(NOME_ARQUIVO, "rb+");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo: %s", NOME_ARQUIVO);
+        return;
+    }
+    while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
+        if (strcmp(temp.nome, novo.nome) == 0) {
+            perfilJaExistente = true;
+            break;
+        }
+    }
+    if (perfilJaExistente) {
+        printf("Perfil ja existe.\n");
+    }
+    else {
+        fwrite(&novo, sizeof(Perfil), 1, arquivo);
+        strcpy(perfilAtivo, novo.nome);
+        printf("Perfil criado e ativado com sucesso!\n");
+    }
+    fclose(arquivo);
+}
+
+
+void acessarPerfil() {
+    FILE* arquivo;
+    Perfil temp;
+    bool perfilJaExistente = false;
+    char nomeAcesso[TAMANHO_NOME];
+
+    lerNome("Digite o nome do perfil a ser acessado: ", nomeAcesso);
+
+    arquivo = fopen(NOME_ARQUIVO, "rb+");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo: %s", NOME_ARQUIVO);
+        return;
+    }
+
+    while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
+        if (strcmp(temp.nome, nomeAcesso) == 0) {
+            perfilJaExistente = true;
+            break;
+        }
+    fclose(arquivo);
+
+    }
+    if (perfilJaExistente) {
+        strcpy(perfilAtivo, nomeAcesso);
+        printf("Perfil %s acessado com sucesso", perfilAtivo);
+    }
+    else {
+        printf("Perfil nao existe, tente acessar/criar outro perfil.");
+    }
+}
+
+
+void excluirPerfil() {
+    // E possivel excluir o perfil atual?
+    Perfil temp;
+    char nomePerfil[TAMANHO_NOME];
+    lerNome("Digite o nome do Perfil a ser excluido: ", nomePerfil);
+    
+    FILE* arquivo = fopen(NOME_ARQUIVO, "rb");
+    FILE* novo = fopen(NOVO_NOME_ARQUIVO, "wb");
+
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo %s\n", NOME_ARQUIVO);
+        return;
+    }
+    if (!novo) {
+        printf("Erro ao abrir o arquivo %s\n", NOVO_NOME_ARQUIVO);
+        return;
+    }
+
+    while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
+        if (strcmp(temp.nome, nomePerfil) != 0) {
+            fwrite(&temp, sizeof(Perfil), 1, novo);
+        }
+    }
+    fclose(arquivo);
+    fclose(novo);
+
+    remove(NOME_ARQUIVO);
+    rename(NOVO_NOME_ARQUIVO, NOME_ARQUIVO);
+}
+
+
+void buscarPerfil() {
+    Perfil jogador;
+    char nomeBusca[TAMANHO_NOME];
+    bool perfilExistente = false;
+
+    lerNome("Digite o nome para a busca: ", nomeBusca);
+
+    FILE* arquivo = fopen(NOME_ARQUIVO, "rb");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo %s\n", NOME_ARQUIVO);
+        return;
+    }
+
+    puts("\n=========================== PERFIL ===========================\n");
+    printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
+    while (fread(&jogador, sizeof(Perfil), 1, arquivo) == 1) {
+        if (strcmp(jogador.nome, nomeBusca) == 0) {
+            printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
+            perfilExistente = true;
+            break;
+        }
+    }
+    if (!perfilExistente) {
+        printf("Perfil nao existe!");
     }
     fclose(arquivo);
     return;
 }
 
 
-void exibirPerfis(char* arquivoNome) {
-    FILE* arquivo = fopen(arquivoNome, "rb");
-    if (!arquivo) {
-        printf("Erro ao abrir o arquivo %s\n", arquivoNome);
-        return;
-    }
+void menuPerfis() {
+    int opcao;
 
-    Perfil jogador;
-    puts("\n=========================== PERFIS ===========================\n");
-    printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
-    while (fread(&jogador, sizeof(Perfil), 1, arquivo) == 1) {
-        printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
-    }
+    do {
+        puts("\n\n0 - Listar Perfis");
+        puts("1 - Criar Perfil");
+        puts("2 - Acessar Perfil");
+        puts("3 - Excluir Perfil");
+        puts("4 - Buscar Perfil");
+        puts("5 - Ranking - PONTUACAO MAXIMA");
+        puts("6 - Ranking - PONTUACAO POR SEGUNDO");
+        puts("7 - Voltar");
+        printf("\nEscolha: ");
+        scanf(" %d", &opcao);
 
-    fclose(arquivo);
+        switch (opcao) {
+            case 0:
+                exibirPerfis();
+                break;
+            case 1:
+                criarPerfil();
+                break;
+            case 2:
+                acessarPerfil();
+                break;
+            case 3:
+                excluirPerfil();
+                break;
+            case 4:
+                buscarPerfil();
+                break;
+            case 5:
+                //rankingPontos();
+                break;
+            case 6:
+                //rankingSegundos();
+                break;
+            case 7:
+                printf("Voltando...\n");
+                break;
+            default:
+                puts("Escolha invalida! Tente novamente.\n");
+                break;
+            }
+    } while (opcao != 7);
+
+    return;
 }
