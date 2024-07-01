@@ -9,12 +9,10 @@ bool HaEspacoDisponivel(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
     for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
         for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
             if (tabuleiro[i][j] == 0) {
-                puts("Ha espaco disponivel");
                 return true;
             }
         }
     }
-    puts("Nao ha espaco disponivel");
     return false;
 }
 
