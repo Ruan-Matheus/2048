@@ -8,7 +8,6 @@
 #include "tabuleiro.h"
 
 #define NOME_ARQUIVO "perfis.dat"
-char perfilAtivo[TAMANHO_NOME] = "";
 
 void jogarJogo() {
     Perfil jogador;
@@ -93,7 +92,7 @@ int main() {
     do {
         printf("\n===== MENU =====\n");
         printf("1. Jogar\n");
-        printf("2. Ver Perfis\n");
+        printf("2. Perfis\n");
         printf("3. Sair\n");
         printf("\nEscolha: ");
         scanf(" %c", &escolha);
@@ -116,4 +115,4 @@ int main() {
     } while (escolha != '3');
 
     return 0;
-}
+}   
