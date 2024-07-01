@@ -11,7 +11,6 @@
 char perfilAtivo[TAMANHO_NOME] = "";
 
 void jogarJogo() {
-    FILE* arquivo;
     Perfil jogador;
     int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
     int pontuacao = 0;
@@ -85,11 +84,11 @@ void sair() {
 
 
 int main() {
-    FILE* arquivo;
     char escolha;
 
     //Verifica se o arquivo existe, antes de ler.
-    arquivo = fopen(NOME_ARQUIVO, "ab+");
+    FILE* arquivo = fopen(NOME_ARQUIVO, "ab+");
+    fclose(arquivo);
 
     do {
         printf("\n===== MENU =====\n");
