@@ -14,6 +14,40 @@ void toUpper(char* string) {
 } 
 
 
+bool nomeValido(char nome[]) {
+    if (nome[0] == '\0') {
+        return false;
+    }
+    for (int i = 0; nome[i] != '\0'; i++) {
+        if (nome[i] < 'A' || nome[i] > 'Z') {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+void limparBuffer() {
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF);
+}
+
+
+void lerNome(char* string, char nomePerfil[]) {
+    printf("\n%s", string);
+    fgets(nomePerfil, TAMANHO_NOME, stdin);
+    // Verifica se o buffer está limpo
+    int len = strlen(nomePerfil);
+    if (len > 0 && nomePerfil[len - 1] == '\n') {
+        nomePerfil[len - 1] = '\0'; // Remove o caractere de nova linha
+    } else {
+        // Esvazia o buffer se o nome for muito longo
+        limparBuffer();
+    }
+    toUpper(nomePerfil);
+}
+
+
 void atualizaArquivo(Perfil jogador) {
     FILE* arquivo;
     Perfil atual;
@@ -65,26 +99,21 @@ void exibirPerfis() {
     return;
 }
 
-void lerNome(char* string, char nomePerfil[]) {
-    printf("\n%s", string);
-    fgets(nomePerfil, TAMANHO_NOME, stdin);
-    
-    // Remover o caractere de nova linha se presente
-    int len = strlen(nomePerfil);
-    if (len > 0 && nomePerfil[len - 1] == '\n') {
-        nomePerfil[len - 1] = '\0';
-    }
-    toUpper(nomePerfil);
-}
-
 
 void criarPerfil() {
     FILE* arquivo;
     Perfil novo, temp;
     bool perfilJaExistente = false;
+    bool nomeEValido;
 
-    // Nao quero ler espacos ou outros \s
-    lerNome("Digite o nome do Perfil a ser criado: ", novo.nome);
+    do {
+        lerNome("Digite o nome do Perfil a ser criado: ", novo.nome);
+        nomeEValido = nomeValido(novo.nome);
+        if (!nomeEValido) {
+            printf("Nome invalido! Apenas letras de A-Z.\n");
+        }
+    } while (!nomeEValido);
+
     novo.pontuacaoMaxima = 0;
     novo.pontuacaoMaximaSegundo = 0;
   
@@ -155,7 +184,7 @@ void excluirPerfil() {
 
     // Verifica se o perfil a ser excluído está ativo
     if (strcmp(perfilAtivo, nomePerfil) == 0) {
-        printf("Erro: Nao e possível excluir o perfil ativo.\n");
+        printf("Erro: Nao e possivel excluir o perfil ativo.\n");
         return;
     }
     
@@ -209,17 +238,19 @@ void buscarPerfil() {
         return;
     }
 
-    puts("\n=========================== PERFIL ===========================\n");
-    printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
     while (fread(&jogador, sizeof(Perfil), 1, arquivo) == 1) {
         if (strcmp(jogador.nome, nomeBusca) == 0) {
-            printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
             perfilExistente = true;
             break;
         }
     }
+    if (perfilExistente) {
+        puts("\n=========================== PERFIL ===========================\n");
+        printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
+        printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
+    }
     if (!perfilExistente) {
-        printf("Perfil nao existe!");
+        printf("Perfil nao existe!\n");
     }
     fclose(arquivo);
     return;
@@ -230,7 +261,7 @@ void menuPerfis() {
     int opcao;
 
     do {
-        puts("\n\n0 - Listar Perfis");
+        puts("\n0 - Listar Perfis");
         puts("1 - Criar Perfil");
         puts("2 - Acessar Perfil");
         puts("3 - Excluir Perfil");
@@ -240,7 +271,7 @@ void menuPerfis() {
         puts("7 - Voltar");
         printf("\nEscolha: ");
         scanf("%d", &opcao);
-        getchar();
+        limparBuffer();
 
         switch (opcao) {
             case 0:
