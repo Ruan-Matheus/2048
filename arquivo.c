@@ -66,9 +66,14 @@ void exibirPerfis() {
 }
 
 void lerNome(char* string, char nomePerfil[]) {
-    getchar();
     printf("\n%s", string);
     fgets(nomePerfil, TAMANHO_NOME, stdin);
+    
+    // Remover o caractere de nova linha se presente
+    int len = strlen(nomePerfil);
+    if (len > 0 && nomePerfil[len - 1] == '\n') {
+        nomePerfil[len - 1] = '\0';
+    }
     toUpper(nomePerfil);
 }
 
@@ -78,6 +83,7 @@ void criarPerfil() {
     Perfil novo, temp;
     bool perfilJaExistente = false;
 
+    // Nao quero ler espacos ou outros \s
     lerNome("Digite o nome do Perfil a ser criado: ", novo.nome);
     novo.pontuacaoMaxima = 0;
     novo.pontuacaoMaximaSegundo = 0;
@@ -94,7 +100,7 @@ void criarPerfil() {
         }
     }
     if (perfilJaExistente) {
-        printf("Perfil ja existe.\n");
+        printf("Perfil ja existe! Tente outro nome.\n");
     }
     else {
         fwrite(&novo, sizeof(Perfil), 1, arquivo);
@@ -113,7 +119,7 @@ void acessarPerfil() {
 
     lerNome("Digite o nome do perfil a ser acessado: ", nomeAcesso);
 
-    arquivo = fopen(NOME_ARQUIVO, "rb+");
+    arquivo = fopen(NOME_ARQUIVO, "rb");
     if (!arquivo) {
         printf("Erro ao abrir o arquivo: %s", NOME_ARQUIVO);
         return;
@@ -124,47 +130,69 @@ void acessarPerfil() {
             perfilJaExistente = true;
             break;
         }
-    fclose(arquivo);
-
     }
+
+    fclose(arquivo);
+    
     if (perfilJaExistente) {
         strcpy(perfilAtivo, nomeAcesso);
-        printf("Perfil %s acessado com sucesso", perfilAtivo);
+        printf("Perfil %s acessado com sucesso\n", perfilAtivo);
     }
     else {
-        printf("Perfil nao existe, tente acessar/criar outro perfil.");
+        printf("Perfil nao existe, tente acessar/criar outro perfil.\n");
     }
 }
 
 
 void excluirPerfil() {
-    // E possivel excluir o perfil atual?
+    Perfil SAVES[256];
     Perfil temp;
+    bool perfilEncontrado = false;
     char nomePerfil[TAMANHO_NOME];
-    lerNome("Digite o nome do Perfil a ser excluido: ", nomePerfil);
-    
-    FILE* arquivo = fopen(NOME_ARQUIVO, "rb");
-    FILE* novo = fopen(NOVO_NOME_ARQUIVO, "wb");
+    int i = 0;
 
-    if (!arquivo) {
-        printf("Erro ao abrir o arquivo %s\n", NOME_ARQUIVO);
+    lerNome("Digite o nome do Perfil a ser excluido: ", nomePerfil);
+
+    // Verifica se o perfil a ser excluído está ativo
+    if (strcmp(perfilAtivo, nomePerfil) == 0) {
+        printf("Erro: Nao e possível excluir o perfil ativo.\n");
         return;
     }
-    if (!novo) {
-        printf("Erro ao abrir o arquivo %s\n", NOVO_NOME_ARQUIVO);
+    
+    FILE* arquivo = fopen(NOME_ARQUIVO, "rb+");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo %s\n", NOME_ARQUIVO);
         return;
     }
 
     while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
         if (strcmp(temp.nome, nomePerfil) != 0) {
-            fwrite(&temp, sizeof(Perfil), 1, novo);
+            SAVES[i] = temp;
+            i++;
+        }
+        else {
+            perfilEncontrado = true;
         }
     }
     fclose(arquivo);
-    fclose(novo);
 
-    remove(NOME_ARQUIVO);
-    rename(NOVO_NOME_ARQUIVO, NOME_ARQUIVO);
+    if (perfilEncontrado) {
+        // Reabre o arquivo em modo de escrita, limpando o seu conteudo
+        arquivo = fopen(NOME_ARQUIVO, "wb");
+        if (!arquivo) {
+            printf("Erro ao abrir o arquivo %s para escrita\n", NOME_ARQUIVO);
+            return;
+        }
+
+        for (int j = 0; j < i; j++) {
+            fwrite(&SAVES[j], sizeof(Perfil), 1, arquivo);
+        }
+        fclose(arquivo);
+
+        printf("Perfil %s excluido com sucesso.\n", nomePerfil);
+    } else {
+        printf("Perfil %s nao encontrado.\n", nomePerfil);
+    }
 }
 
 
@@ -211,7 +239,8 @@ void menuPerfis() {
         puts("6 - Ranking - PONTUACAO POR SEGUNDO");
         puts("7 - Voltar");
         printf("\nEscolha: ");
-        scanf(" %d", &opcao);
+        scanf("%d", &opcao);
+        getchar();
 
         switch (opcao) {
             case 0:
