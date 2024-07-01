@@ -4,7 +4,7 @@
 #include "arquivo.h"
 #include "bubble_sort.h"
 
-char perfilAtivo[TAMANHO_NOME]; // Variavel gloval para armazenar o nome do perfil ativo
+char perfilAtivo[TAMANHO_NOME] = ""; // Variavel gloval para armazenar o nome do perfil ativo
 
 void toUpper(char* string) {
     for (int i = 0; string[i] != '\0'; i++) {
@@ -63,7 +63,7 @@ void atualizaArquivo(Perfil jogador) {
         // O perfil existe, e foi encontrado
         if (strcmp(atual.nome, jogador.nome) == 0) { 
             if (jogador.pontuacaoMaxima > atual.pontuacaoMaxima) {
-                fseek(arquivo, -sizeof(Perfil), SEEK_CUR);
+                fseek(arquivo, (-1) * sizeof(Perfil), SEEK_CUR);
                 fwrite(&jogador, sizeof(Perfil), 1, arquivo);
                 fseek(arquivo, 0, SEEK_CUR);
             }
@@ -94,8 +94,10 @@ void exibirPerfis() {
     puts("\n=========================== PERFIS ===========================\n");
     printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
     while (fread(&jogador, sizeof(Perfil), 1, arquivo) == 1) {
-        printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
-    }
+        printf("%-10s\t%-18d\t%.2f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);    
+    }  
+    puts("==============================================================\n");
+
     fclose(arquivo);
     return;
 }
@@ -249,12 +251,39 @@ void buscarPerfil() {
         puts("\n=========================== PERFIL ===========================\n");
         printf("NOME\t\tPONTUACAO MAXIMA \tPONTUACAO POR SEGUNDO\n");
         printf("%-10s\t%-18d\t%.0f\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
+        puts("==============================================================\n");
     }
     if (!perfilExistente) {
         printf("Perfil nao existe!\n");
     }
     fclose(arquivo);
     return;
+}
+
+
+void exibirRanking(int max, bool segundo) {
+    FILE* arquivo;
+    Perfil SAVE[256];
+    
+    arquivo = fopen(NOME_ARQUIVO, "rb");
+    if (!arquivo) {
+        printf("Erro ao abrir o arquivo %s", NOME_ARQUIVO);
+        return;
+    }
+
+    int i = 0;
+    while (fread(&SAVE[i++], sizeof(Perfil), 1, arquivo)) {}
+    fclose(arquivo);
+
+    bolha(SAVE, i, segundo);
+
+    puts("\n=========================== RANKING ===========================\n");
+    printf("%-5s %-12s %-20s %s\n", "RANK", "NOME", "PONTUACAO MAXIMA", "PONTUACAO POR SEGUNDO");
+    puts("--------------------------------------------------------------");
+    for (int j = 0; j < max && j < i; j++) {
+        printf("%-5d %-12s %-20d %.2f\n", j + 1, SAVE[j].nome, SAVE[j].pontuacaoMaxima, SAVE[j].pontuacaoMaximaSegundo);
+    }
+    puts("==============================================================\n");
 }
 
 
