@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "arquivo.h"
+#include "bubble_sort.h"
 
 char perfilAtivo[TAMANHO_NOME]; // Variavel gloval para armazenar o nome do perfil ativo
 
@@ -259,6 +260,8 @@ void buscarPerfil() {
 
 void menuPerfis() {
     int opcao;
+    int nMaxRanking = 10;
+
 
     do {
         puts("\n0 - Listar Perfis");
@@ -290,10 +293,10 @@ void menuPerfis() {
                 buscarPerfil();
                 break;
             case 5:
-                //rankingPontos();
+                exibirRanking(nMaxRanking, false);
                 break;
             case 6:
-                //rankingSegundos();
+                exibirRanking(nMaxRanking, true);
                 break;
             case 7:
                 printf("Voltando...\n");

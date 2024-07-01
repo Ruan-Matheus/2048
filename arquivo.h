@@ -3,7 +3,6 @@
 
 #define TAMANHO_NOME 4 // 3 Caracter de nome + \0
 #define NOME_ARQUIVO "perfis.dat"
-#define NOVO_NOME_ARQUIVO "novo_perfis.dat"
 #define true 1
 #define false 0
 
