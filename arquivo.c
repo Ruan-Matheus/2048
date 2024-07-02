@@ -125,7 +125,7 @@ void criarPerfil() {
         printf("Erro ao abrir o arquivo: %s", NOME_ARQUIVO);
         return;
     }
-    while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
+    while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
         if (strcmp(temp.nome, novo.nome) == 0) {
             perfilJaExistente = true;
             break;
@@ -157,7 +157,7 @@ void acessarPerfil() {
         return;
     }
 
-    while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
+    while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
         if (strcmp(temp.nome, nomeAcesso) == 0) {
             perfilJaExistente = true;
             break;
@@ -197,7 +197,7 @@ void excluirPerfil() {
         return;
     }
 
-    while (fread(&temp, sizeof(Perfil), 1, arquivo)) {
+    while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
         if (strcmp(temp.nome, nomePerfil) != 0) {
             SAVES[i] = temp;
             i++;
@@ -263,7 +263,7 @@ void buscarPerfil() {
 
 void exibirRanking(int max, bool segundo) {
     FILE* arquivo;
-    Perfil SAVE[256];
+    Perfil SAVE[BUFFER_SIZE];
     
     arquivo = fopen(NOME_ARQUIVO, "rb");
     if (!arquivo) {
@@ -272,9 +272,13 @@ void exibirRanking(int max, bool segundo) {
     }
 
     int i = 0;
-    while (fread(&SAVE[i++], sizeof(Perfil), 1, arquivo)) {}
+    while (fread(&SAVE[i], sizeof(Perfil), 1, arquivo) == 1) {
+        i++;
+        if (i >= BUFFER_SIZE) {
+            break;
+        }
+    }
     fclose(arquivo);
-
     bolha(SAVE, i, segundo);
 
     puts("\n=========================== RANKING ===========================\n");
