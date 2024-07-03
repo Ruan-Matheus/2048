@@ -8,6 +8,7 @@
 #include "tabuleiro.h"
 
 #define NOME_ARQUIVO "perfis.dat"
+#define TAMANHO_TABULEIRO 4
 
 void jogarJogo() {
     Perfil jogador;
@@ -24,8 +25,8 @@ void jogarJogo() {
     }
     strcpy(jogador.nome, perfilAtivo);
 
-    criarTabuleiro(tabuleiro);
-    exibirTabuleiro(tabuleiro, pontuacao);
+    criarTabuleiro(TAMANHO_TABULEIRO, tabuleiro);
+    exibirTabuleiro(TAMANHO_TABULEIRO, tabuleiro, pontuacao);
 
     tInicio = time(NULL);
     while (gameNotOver) {    
@@ -36,16 +37,16 @@ void jogarJogo() {
 
         switch (movimento) {
             case 'w':
-                somandoMatrizCima(tabuleiro, &pontuacao);
+                somandoMatrizCima(TAMANHO_TABULEIRO, tabuleiro, &pontuacao);
                 break;
             case 'a':
-                somandoMatrizEsquerda(tabuleiro, &pontuacao);
+                somandoMatrizEsquerda(TAMANHO_TABULEIRO, tabuleiro, &pontuacao);
                 break;
             case 'd':
-                somandoMatrizParaDireita(tabuleiro, &pontuacao);
+                somandoMatrizParaDireita(TAMANHO_TABULEIRO, tabuleiro, &pontuacao);
                 break;
             case 's':
-                somandoMatrizBaixo(tabuleiro, &pontuacao);
+                somandoMatrizBaixo(TAMANHO_TABULEIRO, tabuleiro, &pontuacao);
                 break;
             case 'q':
                 puts("Fechando o jogo...");
@@ -55,9 +56,9 @@ void jogarJogo() {
                 puts("Movimento invalido!");
                 break;
         }
-        exibirTabuleiro(tabuleiro, pontuacao);
+        exibirTabuleiro(TAMANHO_TABULEIRO, tabuleiro, pontuacao);
 
-        if (!HaEspacoDisponivel(tabuleiro)) {
+        if (!(jogoContinua(TAMANHO_TABULEIRO, tabuleiro))) {
             gameNotOver = false;
         }
     } 
@@ -70,10 +71,10 @@ void jogarJogo() {
 
     atualizaArquivo(jogador);
 
-    puts("Game over!");
-    printf("Tempo de jogo: %.0fs\n", tempoTotal);
+    puts("GAME OVER!");
+    printf("TEMPO DE JOGO: %.0fs\n", tempoTotal);
     
-    printf("nome: %s\npontos: %d, pontos/s: %.0f\n\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
+    printf("NOME: %s\nPONTOS: %d, PONTOS/S: %.0f\n\n", jogador.nome, jogador.pontuacaoMaxima, jogador.pontuacaoMaximaSegundo);
 }
 
 
