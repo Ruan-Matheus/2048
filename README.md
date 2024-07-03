@@ -1,14 +1,16 @@
 # 2048
 
-
 ## Para compilar e executar o jogo, use os comandos:
-```
+
+```gcc
 gcc main.c fila_dinamica.c tabuleiro.c arquivo.c bubble_sort.c -o main.exe -lm
 ```
-```
+
+```cmd
 main.exe (Windows)
 ```
-```
+
+```bash
 ./main.exe (Linux)
 ```
 
