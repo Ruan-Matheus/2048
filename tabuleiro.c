@@ -5,9 +5,9 @@
 #include "fila_dinamica.h"
 #include "tabuleiro.h"
 
-bool HaEspacoDisponivel(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+bool HaEspacoDisponivel(int tamanho, int tabuleiro[tamanho][tamanho]) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
             if (tabuleiro[i][j] == 0) {
                 return true;
             }
@@ -17,7 +17,33 @@ bool HaEspacoDisponivel(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
 }
 
 
-void adicionarNovoNumero(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+bool haMovimentosPossiveis(int tamanho, int tabuleiro[tamanho][tamanho]) {
+    // Verifica movimentos horizontais
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho - 1; j++) {
+            if (tabuleiro[i][j] == tabuleiro[i][j + 1]) {
+                return true;
+            }
+        }
+    }
+    // Verifica movimentos verticais
+    for (int j = 0; j < tamanho; j++) {
+        for (int i = 0; i < tamanho - 1; i++) {
+            if (tabuleiro[i][j] == tabuleiro[i + 1][j]) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+bool jogoContinua(int tamanho, int tabuleiro[tamanho][tamanho]) {
+    return (HaEspacoDisponivel(tamanho, tabuleiro) || haMovimentosPossiveis(tamanho, tabuleiro));
+}
+
+
+void adicionarNovoNumero(int tamanho, int tabuleiro[tamanho][tamanho]) {
     int randomNumeroLinha;
     int randomNumeroColuna;
     
@@ -26,31 +52,31 @@ void adicionarNovoNumero(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
         randomNumeroColuna = (rand() % 4);
     } while (tabuleiro[randomNumeroLinha][randomNumeroColuna] != 0);
 
-    tabuleiro[randomNumeroLinha][randomNumeroColuna] = (int)pow(2,((rand() % 2) + 1)); // 2**1 ou 2**2
+    tabuleiro[randomNumeroLinha][randomNumeroColuna] = (int)pow(2, ((rand() % 2) + 1)); // 2**1 ou 2**2
 }
 
 
-void criarTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+void criarTabuleiro(int tamanho, int tabuleiro[tamanho][tamanho]) {
     int randomNumero = (rand() % 2) + 1;  // Um numero entre 1 e 2. A quantidade de não 0s no começo do jogo.
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
             tabuleiro[i][j] = 0;
         }
     }
-    adicionarNovoNumero(tabuleiro);
+    adicionarNovoNumero(tamanho, tabuleiro);
     if (randomNumero == 2) {
-        adicionarNovoNumero(tabuleiro);
+        adicionarNovoNumero(tamanho, tabuleiro);
     }
 }
 
 
-void somandoVetorDireita(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
+void somandoVetorDireita(int tamanho, int vet[tamanho], int* pontuacao) {
     FILA q;
     REGISTRO reg;
     iniciarFILA(&q);
 
     // Insere os elementos que não sejam 0
-    for (int i = TAMANHO_TABULEIRO - 1; i >= 0; i--) {
+    for (int i = tamanho - 1; i >= 0; i--) {
         if (vet[i] != 0) {
             reg.chave = vet[i];
             inserirElementoFila(&q, reg);
@@ -58,7 +84,7 @@ void somandoVetorDireita(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
     }
 
     // Remove os elementos, combina se iguais, e devolve ao vetor
-    int index = TAMANHO_TABULEIRO - 1;
+    int index = tamanho - 1;
     int current, next;
     while (tamanhoDaFILA(q) > 0) {
         excluirElementoFila(&q, &reg);
@@ -86,27 +112,41 @@ void somandoVetorDireita(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
 }
 
 
-void somandoMatrizParaDireita(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        somandoVetorDireita(tabuleiro[i], pontuacao);
+void somandoMatrizParaDireita(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao) {
+    bool movimentoFeito = false;
+    for (int i = 0; i < tamanho; i++) {
+        int original[tamanho];
+        for (int j = 0; j < tamanho; j++) {
+            original[j] = tabuleiro[i][j];
+        }
+
+        somandoVetorDireita(tamanho, tabuleiro[i], pontuacao);
+
+        for (int j = 0; j < tamanho; j++) {
+            if (original[j] != tabuleiro[i][j]) {
+                movimentoFeito = true;
+            }
+        }
     }
-    adicionarNovoNumero(tabuleiro);
+
+    if (movimentoFeito) {
+        adicionarNovoNumero(tamanho, tabuleiro);
+    }
 }
 
 
-void somandoVetorEsquerda(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
+void somandoVetorEsquerda(int tamanho, int vet[tamanho], int* pontuacao) {
     FILA q;
     REGISTRO reg;
     iniciarFILA(&q);
 
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+    for (int i = 0; i < tamanho; i++) {
         if (vet[i] != 0) {
             reg.chave = vet[i];
             inserirElementoFila(&q, reg);
         }
     }
 
-    
     int index = 0;
     int current, next;
     while (tamanhoDaFILA(q) > 0) {
@@ -127,68 +167,106 @@ void somandoVetorEsquerda(int vet[TAMANHO_TABULEIRO], int* pontuacao) {
         }
     }
     // Completando as posições restantes com 0s
-    while (index < TAMANHO_TABULEIRO) {
+    while (index < tamanho) {
         vet[index++] = 0;
     }
 
     reiniciarFila(&q);
 }
 
+void somandoMatrizEsquerda(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao) {
+    bool movimentoFeito = false;
+    for (int i = 0; i < tamanho; i++) {
+        int original[tamanho];
+        for (int j = 0; j < tamanho; j++) {
+            original[j] = tabuleiro[i][j];
+        }
 
-void somandoMatrizEsquerda(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        somandoVetorEsquerda(tabuleiro[i], pontuacao);
+        somandoVetorEsquerda(tamanho, tabuleiro[i], pontuacao);
+
+        for (int j = 0; j < tamanho; j++) {
+            if (original[j] != tabuleiro[i][j]) {
+                movimentoFeito = true;
+            }
+        }
     }
-    adicionarNovoNumero(tabuleiro);
+
+    if (movimentoFeito) {
+        adicionarNovoNumero(tamanho, tabuleiro);
+    }
 }
 
 
-void somandoVetorBaixo(int tabuleiro[TAMANHO_TABULEIRO], int* pontuacao) {
-    somandoVetorDireita(tabuleiro, pontuacao);
+void somandoVetorBaixo(int tamanho, int vet[tamanho], int* pontuacao) {
+    somandoVetorDireita(tamanho, vet, pontuacao);
 }
 
 
-void somandoMatrizBaixo(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        int vet[TAMANHO_TABULEIRO];
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+void somandoMatrizBaixo(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao) {
+    bool movimentoFeito = false;
+    for (int i = 0; i < tamanho; i++) {
+        int vet[tamanho];
+        int original[tamanho];
+        for (int j = 0; j < tamanho; j++) {
             vet[j] = tabuleiro[j][i];
+            original[j] = tabuleiro[j][i];
         }
-        somandoVetorBaixo(vet, pontuacao);
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+
+        somandoVetorBaixo(tamanho, vet, pontuacao);
+
+        for (int j = 0; j < tamanho; j++) {
             tabuleiro[j][i] = vet[j];
+            if (original[j] != tabuleiro[j][i]) {
+                movimentoFeito = true;
+            }
         }
     }
-    adicionarNovoNumero(tabuleiro);
+
+    if (movimentoFeito) {
+        adicionarNovoNumero(tamanho, tabuleiro);
+    }
 }
 
 
-
-void somandoVetorCima(int tabuleiro[TAMANHO_TABULEIRO], int* pontuacao) {
-    somandoVetorEsquerda(tabuleiro, pontuacao);
+void somandoVetorCima(int tamanho, int vet[tamanho], int* pontuacao) {
+    somandoVetorEsquerda(tamanho, vet, pontuacao);
 }
 
-
-void somandoMatrizCima(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao) {
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        int vet[TAMANHO_TABULEIRO];
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+void somandoMatrizCima(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao) {
+    bool movimentoFeito = false;
+    for (int i = 0; i < tamanho; i++) {
+        int vet[tamanho];
+        int original[tamanho];
+        for (int j = 0; j < tamanho; j++) {
             vet[j] = tabuleiro[j][i];
+            original[j] = tabuleiro[j][i];
         }
-        somandoVetorCima(vet, pontuacao);
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+
+        somandoVetorCima(tamanho, vet, pontuacao);
+
+        for (int j = 0; j < tamanho; j++) {
             tabuleiro[j][i] = vet[j];
+            if (original[j] != tabuleiro[j][i]) {
+                movimentoFeito = true;
+            }
         }
     }
-    adicionarNovoNumero(tabuleiro);
+
+    if (movimentoFeito) {
+        adicionarNovoNumero(tamanho, tabuleiro);
+    }
 }
 
 
-void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int pontuacao) {
-    printf("Pontos: %d\n\n", pontuacao);
-    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
-        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
-            printf(" %4d ", tabuleiro[i][j]);
+void exibirTabuleiro(int tamanho, int tabuleiro[tamanho][tamanho], int pontuacao) {
+    printf("PONTOS: %d\n\n", pontuacao);
+    for (int i = 0; i < tamanho; i++) {
+        for (int j = 0; j < tamanho; j++) {
+            if (tabuleiro[i][j] == 0) {
+                printf(" %4d ", tabuleiro[i][j]);
+            } else {
+                printf(COLOR_BOLD " %4d " COLOR_OFF, tabuleiro[i][j]);
+            }
         }
         printf("\n");
     }

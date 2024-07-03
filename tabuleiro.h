@@ -1,19 +1,22 @@
 #ifndef TABULEIRO_H
 #define TABULEIRO_H
 
-#define TAMANHO_TABULEIRO 4
+#define COLOR_BOLD  "\e[1m"
+#define COLOR_OFF   "\e[m"
 
-bool HaEspacoDisponivel(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]);
-void adicionarNovoNumero(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]);
-void criarTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]);
-void somandoVetorDireita(int vet[TAMANHO_TABULEIRO], int* pontuacao);
-void somandoMatrizParaDireita(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao);
-void somandoVetorEsquerda(int vet[TAMANHO_TABULEIRO], int* pontuacao);
-void somandoMatrizEsquerda(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao);
-void somandoVetorBaixo(int tabuleiro[TAMANHO_TABULEIRO], int* pontuacao);
-void somandoMatrizBaixo(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao);
-void somandoVetorCima(int tabuleiro[TAMANHO_TABULEIRO], int* pontuacao);
-void somandoMatrizCima(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int* pontuacao);
-void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int pontuacao);
+bool HaEspacoDisponivel(int tamanho, int tabuleiro[tamanho][tamanho]);
+bool haMovimentosPossiveis(int tamanho, int tabuleiro[tamanho][tamanho]);
+bool jogoContinua(int tamanho, int tabuleiro[tamanho][tamanho]);
+void adicionarNovoNumero(int tamanho, int tabuleiro[tamanho][tamanho]);
+void criarTabuleiro(int tamanho, int tabuleiro[tamanho][tamanho]);
+void somandoVetorDireita(int tamanho, int vet[tamanho], int* pontuacao);
+void somandoMatrizParaDireita(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao);
+void somandoVetorEsquerda(int tamanho, int vet[tamanho], int* pontuacao);
+void somandoMatrizEsquerda(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao);
+void somandoVetorBaixo(int tamanho, int vet[tamanho], int* pontuacao);
+void somandoMatrizBaixo(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao);
+void somandoVetorCima(int tamanho, int vet[tamanho], int* pontuacao);
+void somandoMatrizCima(int tamanho, int tabuleiro[tamanho][tamanho], int* pontuacao);
+void exibirTabuleiro(int tamanho, int tabuleiro[tamanho][tamanho], int pontuacao);
 
 #endif // TABULEIRO_H
