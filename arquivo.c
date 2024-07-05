@@ -4,7 +4,7 @@
 #include "arquivo.h"
 #include "bubble_sort.h"
 
-char perfilAtivo[TAMANHO_NOME] = ""; // Variavel gloval para armazenar o nome do perfil ativo
+char perfilAtivo[TAMANHO_NOME] = "RUA"; // Variavel gloval para armazenar o nome do perfil ativo
 
 void toUpper(char* string) {
     for (int i = 0; string[i] != '\0'; i++) {
@@ -115,7 +115,7 @@ void criarPerfil() {
         if (!nomeEValido) {
             printf("Nome invalido! Apenas letras de A-Z.\n");
         }
-    } while (!nomeEValido);
+    } while (!nomeEValido); // Validando o nome do perfil
 
     novo.pontuacaoMaxima = 0;
     novo.pontuacaoMaximaSegundo = 0;
@@ -126,7 +126,7 @@ void criarPerfil() {
         return;
     }
     while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
-        if (strcmp(temp.nome, novo.nome) == 0) {
+        if (strcmp(temp.nome, novo.nome) == 0) { // Perfil ja existe
             perfilJaExistente = true;
             break;
         }
@@ -136,13 +136,14 @@ void criarPerfil() {
     }
     else {
         fwrite(&novo, sizeof(Perfil), 1, arquivo);
-        strcpy(perfilAtivo, novo.nome);
+        strcpy(perfilAtivo, novo.nome); //  O perfil ativo sera o perfil criado
         printf("Perfil criado e ativado com sucesso!\n");
     }
     fclose(arquivo);
 }
 
 
+// Acessa o perfil desejado, caso ele exista
 void acessarPerfil() {
     FILE* arquivo;
     Perfil temp;
@@ -158,7 +159,7 @@ void acessarPerfil() {
     }
 
     while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
-        if (strcmp(temp.nome, nomeAcesso) == 0) {
+        if (strcmp(temp.nome, nomeAcesso) == 0) { // Perfil encontrado
             perfilJaExistente = true;
             break;
         }
@@ -199,6 +200,7 @@ void excluirPerfil() {
 
     while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
         if (strcmp(temp.nome, nomePerfil) != 0) {
+            // Copiandos os perfis diferentes daquele a seer excluido
             SAVES[i] = temp;
             i++;
         }
@@ -217,6 +219,7 @@ void excluirPerfil() {
         }
 
         for (int j = 0; j < i; j++) {
+            // Reescreve o arquivo com todos os perfis menos o excluido
             fwrite(&SAVES[j], sizeof(Perfil), 1, arquivo);
         }
         fclose(arquivo);
@@ -228,6 +231,7 @@ void excluirPerfil() {
 }
 
 
+// Exibe os atributos de perfil de um jogador caso o perfil ja exista
 void buscarPerfil() {
     Perfil jogador;
     char nomeBusca[TAMANHO_NOME];
@@ -261,7 +265,8 @@ void buscarPerfil() {
 }
 
 
-void exibirRanking(int max, bool segundo) {
+// Exibe o ranking dos max jogadores com base pontos maximos ou tempo
+void exibirRanking(int max, bool tempo) {
     FILE* arquivo;
     Perfil SAVE[BUFFER_SIZE];
     
@@ -279,7 +284,7 @@ void exibirRanking(int max, bool segundo) {
         }
     }
     fclose(arquivo);
-    bolha(SAVE, i, segundo);
+    bolha(SAVE, i, tempo);
 
     puts("\n=========================== RANKING ===========================\n");
     printf("%-5s %-12s %-20s %s\n", "RANK", "NOME", "PONTUACAO MAXIMA", "PONTUACAO POR SEGUNDO");
@@ -291,6 +296,7 @@ void exibirRanking(int max, bool segundo) {
 }
 
 
+// Menu de opcoes relacionados aos perfis
 void menuPerfis() {
     int opcao;
     int nMaxRanking = 10;
