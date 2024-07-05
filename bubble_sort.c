@@ -10,19 +10,19 @@ void troca(Perfil *p1, Perfil *p2) {
 }
 
 
-void bolha(Perfil v[], int tam, bool tempo){
-    int ult, i;
+// 
+void bolha(Perfil v[], int tam, bool tempo) {
+    int ult, i, j;
 
-    for (ult=tam-1; ult>0; ult--) {
-        for (i=0; i<ult; i++) {
+    for (ult = tam - 1, j = 0; ult > 0 && j < 10; ult--, j++) {
+        for (i = 0; i < ult; i++) {
             if (tempo) {
-                if (v[i].pontuacaoMaximaSegundo < v[i+1].pontuacaoMaximaSegundo) {
-                    troca(&v[i], &v[i+1]); 
+                if (v[i].pontuacaoMaximaSegundo < v[i + 1].pontuacaoMaximaSegundo) {
+                    troca(&v[i], &v[i + 1]);
                 }
-            }
-            else {
-                if (v[i].pontuacaoMaxima < v[i+1].pontuacaoMaxima) {
-                    troca(&v[i], &v[i+1]); 
+            } else {
+                if (v[i].pontuacaoMaxima < v[i + 1].pontuacaoMaxima) {
+                    troca(&v[i], &v[i + 1]);
                 }
             }
         }
