@@ -1,8 +1,16 @@
 #ifndef TABULEIRO_H
 #define TABULEIRO_H
 
-#define COLOR_BOLD  "\e[1m"
-#define COLOR_OFF   "\e[m"
+#define FIM_COR "\e[m"
+#define BRANCO "\e[1m"
+#define VERMELHO "\e[31m "
+#define VERDE "\e[32m"
+#define AMARELO "\e[33m"
+#define AZUL "\e[34m"
+#define ROXO "\e[35m"
+#define CIANO "\e[36m"
+#define CINZA "\e[37"
+
 
 bool HaEspacoDisponivel(int tamanho, int tabuleiro[tamanho][tamanho]);
 bool haMovimentosPossiveis(int tamanho, int tabuleiro[tamanho][tamanho]);
