@@ -4,7 +4,7 @@
 #include "arquivo.h"
 #include "bubble_sort.h"
 
-char perfilAtivo[TAMANHO_NOME] = "RUA"; // Variavel gloval para armazenar o nome do perfil ativo
+char perfilAtivo[TAMANHO_NOME] = ""; // Variavel gloval para armazenar o nome do perfil ativo
 
 void toUpper(char* string) {
     for (int i = 0; string[i] != '\0'; i++) {
@@ -178,11 +178,12 @@ void acessarPerfil() {
 
 
 void excluirPerfil() {
-    Perfil SAVES[256];
+    FILE *arquivo;
+    Perfil *SAVES;
     Perfil temp;
     bool perfilEncontrado = false;
     char nomePerfil[TAMANHO_NOME];
-    int i = 0;
+    int i = 0, bufferSize = 20;
 
     lerNome("Digite o nome do Perfil a ser excluido: ", nomePerfil);
 
@@ -192,14 +193,33 @@ void excluirPerfil() {
         return;
     }
     
-    FILE* arquivo = fopen(NOME_ARQUIVO, "rb+");
+    arquivo = fopen(NOME_ARQUIVO, "rb+");
     if (!arquivo) {
         printf("Erro ao abrir o arquivo %s\n", NOME_ARQUIVO);
         return;
     }
 
+    SAVES = malloc(bufferSize * sizeof(Perfil));
+    if (!SAVES) {
+        printf("Erro ao alocar memoria para SAVES\n");
+        fclose(arquivo);
+        return;
+    }
+
     while (fread(&temp, sizeof(Perfil), 1, arquivo) == 1) {
         if (strcmp(temp.nome, nomePerfil) != 0) {
+
+            // Vetor atingiu o limite de tamanho. Dobrando seu tamanho.
+            if (i >= bufferSize) {
+                bufferSize *= 2;
+                SAVES = realloc(SAVES, bufferSize * sizeof(Perfil));
+                if (!SAVES) {
+                    printf("Erro ao realocar memoria!\n");
+                    fclose(arquivo);
+                    return;
+                }
+            }
+
             // Copiandos os perfis diferentes daquele a seer excluido
             SAVES[i] = temp;
             i++;
@@ -215,6 +235,7 @@ void excluirPerfil() {
         arquivo = fopen(NOME_ARQUIVO, "wb");
         if (!arquivo) {
             printf("Erro ao abrir o arquivo %s para escrita\n", NOME_ARQUIVO);
+            free(SAVES);
             return;
         }
 
@@ -223,11 +244,13 @@ void excluirPerfil() {
             fwrite(&SAVES[j], sizeof(Perfil), 1, arquivo);
         }
         fclose(arquivo);
-
         printf("Perfil %s excluido com sucesso.\n", nomePerfil);
-    } else {
+
+    } 
+    else {
         printf("Perfil %s nao encontrado.\n", nomePerfil);
     }
+    free(SAVES);
 }
 
 
@@ -268,7 +291,8 @@ void buscarPerfil() {
 // Exibe o ranking dos max jogadores com base pontos maximos ou tempo
 void exibirRanking(int max, bool tempo) {
     FILE* arquivo;
-    Perfil SAVE[BUFFER_SIZE];
+    Perfil *SAVES;
+    int tamanhoBuffer = 20;
     
     arquivo = fopen(NOME_ARQUIVO, "rb");
     if (!arquivo) {
@@ -276,23 +300,39 @@ void exibirRanking(int max, bool tempo) {
         return;
     }
 
-    int i = 0;
-    while (fread(&SAVE[i], sizeof(Perfil), 1, arquivo) == 1) {
-        i++;
-        if (i >= BUFFER_SIZE) {
-            break;
-        }
+    SAVES = malloc(tamanhoBuffer * sizeof(Perfil));
+    if (!SAVES) {
+        printf("Erro ao alocar memoria para SAVES");
+        fclose(arquivo);
+        return;
     }
+
+    int i = 0;
+    while (fread(&SAVES[i], sizeof(Perfil), 1, arquivo) == 1) {
+        // Vetor atingiu o limite de tamanho. Dobrando seu tamanho.
+            if (i >= tamanhoBuffer) {
+                tamanhoBuffer *= 2;
+                SAVES = realloc(SAVES, tamanhoBuffer * sizeof(Perfil));
+                if (!SAVES) {
+                    printf("Erro ao realocar memoria!\n");
+                    fclose(arquivo);
+                    return;
+                }
+            }
+            i++;
+    }
+
     fclose(arquivo);
-    bolha(SAVE, i, tempo);
+    bolha(SAVES, i, tempo);
 
     puts("\n=========================== RANKING ===========================\n");
     printf("%-5s %-12s %-20s %s\n", "RANK", "NOME", "PONTUACAO MAXIMA", "PONTUACAO POR SEGUNDO");
     puts("--------------------------------------------------------------");
     for (int j = 0; j < max && j < i; j++) {
-        printf("%-5d %-12s %-20d %.2f\n", j + 1, SAVE[j].nome, SAVE[j].pontuacaoMaxima, SAVE[j].pontuacaoMaximaSegundo);
+        printf("%-5d %-12s %-20d %.2f\n", j + 1, SAVES[j].nome, SAVES[j].pontuacaoMaxima, SAVES[j].pontuacaoMaximaSegundo);
     }
     puts("==============================================================\n");
+    free(SAVES);
 }
 
 
