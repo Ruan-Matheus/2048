@@ -77,6 +77,7 @@ void reiniciarFila(FILA* q) {
 }
 
 
+// Copia o valor do primeiro elemento na fila para var
 void primeiro(FILA q, int *var) {
     if (q.front == NULL) {
         *var = 0;
