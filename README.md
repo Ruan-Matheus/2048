@@ -3,7 +3,7 @@
 ## Para compilar e executar o jogo, use os comandos:
 
 ```gcc
-gcc main.c fila_dinamica.c tabuleiro.c arquivo.c bubble_sort.c -o main.exe -lm
+gcc main.c fila_dinamica.c tabuleiro.c arquivo.c bubble_sort.c -o main.exe
 ```
 
 ```cmd
@@ -32,7 +32,7 @@ main.exe (Windows)
 
 - [ ] Refinar a interface do jogo:
 
-  -  Melhorar a impressão do tabuleiro e fornecer feedback claro ao usuário sobre o estado do jogo (por exemplo, vitória, derrota, jogadas inválidas).
+  -  Melhorar a impressão do tabuleiro e fornecer feedback claro ao usuário sobre o estado do jogo (por exemplo, vitória, derrota, jogadas inválidas, cores por numeros).
   
   
 - [x] Arquivos:
