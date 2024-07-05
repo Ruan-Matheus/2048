@@ -25,7 +25,7 @@ void acessarPerfil();
 void excluirPerfil(); 
 void excluirPerfil();
 void buscarPerfil();
-void exibirRanking(int max, bool segundo);
+void exibirRanking(int max, bool tempo);
 void menuPerfis();
 
 
